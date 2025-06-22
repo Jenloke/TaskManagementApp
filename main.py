@@ -8,8 +8,23 @@ class Task:
     self.status = status
     self.creation_timestamp = creation_timestamp
 
-task = {
-  
-}
+task = []
 
-new = Task(...)
+def add_task():
+  pass
+
+def read_task():
+  pass
+
+def update_task():
+  pass
+
+def complete_task():
+  pass
+
+def delete_task():
+  pass
+
+# Main Program Loop
+while True:
+  pass
