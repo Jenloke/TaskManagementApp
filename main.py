@@ -1,6 +1,14 @@
 import os
-from datetime import datetime 
+from datetime import datetime, timezone
 import inputs
+from pymongo import MongoClient
+
+# MongoDB
+client = MongoClient("localhost", 27017)
+db = client['tasks']
+tasks_collection = db['tasks']
+
+# task_list = tasks_collection.find()# evolves into TaskManager
 
 class Task:
   def __init__(self, task_id, title, description, due_date, priority_level, status, creation_timestamp):
@@ -15,19 +23,20 @@ class Task:
 class TaskManager:
   pass
 
-task_list = [] # evolves into TaskManager
-
 def add_task_option():
   task = get_inputs_add_task()
   print(task)
-  task_list.append(Task(**task))
-  # add db logic
+  # task_list.append(Task(**task))
+  tasks_collection.insert_one(task)
+  os.system('cls') # Clear current console input per operation
   print("Task successfully Added")
 
 def get_new_task_id():
   # generate new id from all the ids in the db
   # basic implementation get max number from db
-  return 1
+  max_task_id = tasks_collection.find_one(sort=[('task_id', -1)])
+  print(max_task_id['task_id'] + 1)
+  return 
 
 def get_inputs_add_task():
   title = inputs.get_non_empty_input("Input the task's title:")
@@ -36,26 +45,20 @@ def get_inputs_add_task():
   priority_level = inputs.get_int_input_in_range("Set the priority level:", 1, 3)
   
   return {
+    'task_id': get_new_task_id(),
     'title': title, 
     'description': description, 
     'due_date': due_date,
     'priority_level': priority_level,
     'status': 'Open',
-    'creation_timestamp': datetime.now(),
-    'task_id': get_new_task_id()
+    'creation_timestamp': datetime.now(timezone.utc),
   }
 
-# logic after operation call 
-add_task_option()
-
-# read_task()
-
-
-
 def read_task_option():
-  # should read from db
-  for task in task_list:
-    print(task.task_id)  
+  # should read from db 
+  task_list = tasks_collection.find() # evolves into TaskManager
+  for x in task_list:
+    print(x)
 
 def update_task_option():
   # select ID
@@ -81,14 +84,38 @@ def delete_task_option():
   # return success
   pass
 
+def mainmenu_prompt():
+    print("""
+        Task Management Application
+        [1] Add task
+        [2] Read All tasks
+        [3] Update a task's details
+        [4] Mark a task as complete
+        [5] Delete a task
+        [6] Exit
+        """)
+
 # Main Program Loop
-# print("""
-#       Task Management Application
-#       [1] Add task
-#       [2] Read All tasks
-#       [3] Update a task's details
-#       [4] Mark a task as complete
-#       [5] Delete a task
-#       """)
-# x = input("Select an option: ")
-# os.system('cls') # Clear current console input per operation
+while True:
+  mainmenu_prompt()
+  # Should be in OOP utilizing TaskManger Class
+
+  main_input = input("Select an option: ")
+  os.system('cls') # Clear current console input per operation
+
+  if main_input == '1':
+    add_task_option()
+  elif main_input == '2':
+    read_task_option()
+  elif main_input == '3':
+    update_task_option()
+  elif main_input == '4': 
+    complete_task_option()
+  elif main_input == '5':
+    delete_task_option()
+  elif main_input == '6':
+    print('Thank you for using Task Management Application')
+    break
+# logic after operation call 
+# add_task_option()
+# read_task_option()
