@@ -1,7 +1,8 @@
-import os
-from datetime import datetime, timezone
-import inputs
-from pymongo import MongoClient
+# Libraries
+import os # Input Clearing
+from datetime import datetime, timezone # Dates and UTC compliance for MongoDB
+import inputs # Abstract Inputs File
+from pymongo import MongoClient # Database
 
 # MongoDB
 client = MongoClient("localhost", 27017)
@@ -16,8 +17,8 @@ class Task:
     self.title = title
     self.description = description
     self.due_date = due_date
-    self.priority_level = priority_level
-    self.status = status
+    self.priority_level = priority_level # High, Medium, Low
+    self.status = status # Pending, In Progress, Completed
     self.creation_timestamp = creation_timestamp
 
 class TaskManager:
@@ -29,16 +30,16 @@ def add_task_option():
   # task_list.append(Task(**task))
   tasks_collection.insert_one(task)
   os.system('cls') # Clear current console input per operation
-  print("Task successfully Added")
+  print("Note: Task successfully Added")
 
 def get_new_task_id():
   # generate new id from all the ids in the db
   # basic implementation get max number from db
   max_task_id = tasks_collection.find_one(sort=[('task_id', -1)])
-  print(max_task_id['task_id'] + 1)
-  return 
+  return max_task_id['task_id'] + 1
 
 def get_inputs_add_task():
+  print("CREATING a new TASK:")
   title = inputs.get_non_empty_input("Input the task's title:")
   description = inputs.get_non_empty_input("Input the task's description:")
   due_date = inputs.get_date_input("Enter task's deadline (MM-DD-YYYY):", must_be_future=True)
@@ -50,15 +51,23 @@ def get_inputs_add_task():
     'description': description, 
     'due_date': due_date,
     'priority_level': priority_level,
-    'status': 'Open',
+    'status': 1,
     'creation_timestamp': datetime.now(timezone.utc),
   }
 
 def read_task_option():
-  # should read from db 
-  task_list = tasks_collection.find() # evolves into TaskManager
-  for x in task_list:
-    print(x)
+  print('TASKS LIST')
+  print('===============================================')
+  task_list = tasks_collection.find({}, {'_id': 0}) # evolves into TaskManager
+  for task in task_list:
+    print('Task ID:', task['task_id'])
+    print('Title:', task['title'])
+    print('Description:', task['description'])
+    print('Due Date (MM-DD-YYYY):', task['due_date'].date().strftime('%m-%d-%Y'))
+    print('Priority Level:', task['priority_level'])
+    print('Status:', task['status'])
+    print('Date of Creation (MM-DD-YYYY):', task['creation_timestamp'].date().strftime('%m-%d-%Y'))
+    print('===============================================')
 
 def update_task_option():
   # select ID
@@ -117,6 +126,7 @@ while True:
     case '6':
       print('Thank you for using Task Management Application')
       break
+
 # logic after operation call 
 # add_task_option()
 # read_task_option()
