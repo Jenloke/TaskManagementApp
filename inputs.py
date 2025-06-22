@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 def get_non_empty_input(prompt):
   while True: 
@@ -34,8 +34,8 @@ def get_date_input(prompt, formats=None, must_be_future=False):
         if must_be_future and date_obj <= now:
           print("Date must be in the future.")
           break
-
-        return date_obj  # valid date found
+        
+        return date_obj.replace(tzinfo=timezone.utc)  # valid date found
       except ValueError:
         continue
 
