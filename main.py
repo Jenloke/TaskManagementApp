@@ -103,19 +103,20 @@ while True:
   main_input = input("Select an option: ")
   os.system('cls') # Clear current console input per operation
 
-  if main_input == '1':
-    add_task_option()
-  elif main_input == '2':
-    read_task_option()
-  elif main_input == '3':
-    update_task_option()
-  elif main_input == '4': 
-    complete_task_option()
-  elif main_input == '5':
-    delete_task_option()
-  elif main_input == '6':
-    print('Thank you for using Task Management Application')
-    break
+  match main_input:
+    case '1':
+      add_task_option()
+    case '2':
+      read_task_option()
+    case '3':
+      update_task_option()
+    case '4': 
+      complete_task_option()
+    case '5':
+      delete_task_option()
+    case '6':
+      print('Thank you for using Task Management Application')
+      break
 # logic after operation call 
 # add_task_option()
 # read_task_option()
