@@ -1,9 +1,10 @@
 import os
 from datetime import datetime 
+import inputs
 
 class Task:
-  def __init__(self, task_ID, title, description, due_date, priority_level, status, creation_timestamp):
-    self.task_ID = task_ID
+  def __init__(self, task_id, title, description, due_date, priority_level, status, creation_timestamp):
+    self.task_id = task_id
     self.title = title
     self.description = description
     self.due_date = due_date
@@ -11,18 +12,52 @@ class Task:
     self.status = status
     self.creation_timestamp = creation_timestamp
 
-task_list = []
+class TaskManager:
+  pass
 
-def add_task(task):
+task_list = [] # evolves into TaskManager
+
+def add_task_option():
+  task = get_inputs_add_task()
+  print(task)
   task_list.append(Task(**task))
-  print(task_list[0].task_ID)
+  # add db logic
+  print("Task successfully Added")
 
-def read_task():
+def get_new_task_id():
+  # generate new id from all the ids in the db
+  # basic implementation get max number from db
+  return 1
+
+def get_inputs_add_task():
+  title = inputs.get_non_empty_input("Input the task's title:")
+  description = inputs.get_non_empty_input("Input the task's description:")
+  due_date = inputs.get_date_input("Enter task's deadline (MM-DD-YYYY):", must_be_future=True)
+  priority_level = inputs.get_int_input_in_range("Set the priority level:", 1, 3)
+  
+  return {
+    'title': title, 
+    'description': description, 
+    'due_date': due_date,
+    'priority_level': priority_level,
+    'status': 'Open',
+    'creation_timestamp': datetime.now(),
+    'task_id': get_new_task_id()
+  }
+
+# logic after operation call 
+add_task_option()
+
+# read_task()
+
+
+
+def read_task_option():
   # should read from db
   for task in task_list:
-    print(task.task_ID)  
+    print(task.task_id)  
 
-def update_task():
+def update_task_option():
   # select ID
     # check if id is correct - return if error or proceed if correct
     # retrieve task details from db
@@ -30,7 +65,7 @@ def update_task():
   # return success
   pass
 
-def complete_task():
+def complete_task_option():
   # select ID
     # check if id is correct - return if error or proceed if correct
     # retrieve task details from db
@@ -38,7 +73,7 @@ def complete_task():
   # return success
   pass
 
-def delete_task():
+def delete_task_option():
   # select ID
     # check if id is correct - return if error or proceed if correct
     # retrieve task details from db
@@ -57,17 +92,3 @@ def delete_task():
 #       """)
 # x = input("Select an option: ")
 # os.system('cls') # Clear current console input per operation
-
-
-# logic after operation call 
-add_task({
-  'task_ID': 0, 
-  'title': "Make bed", 
-  'description': "Do everyday", 
-  'due_date': datetime.now(), 
-  'priority_level': 1, 
-  'status': 1, 
-  'creation_timestamp': datetime.now()
-})
-
-read_task()
