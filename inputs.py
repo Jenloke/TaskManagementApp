@@ -31,7 +31,7 @@ def get_date_input(prompt, formats=None, must_be_future=False):
 
         # Optional future/past validation
         now = datetime.now()
-        if must_be_future and date_obj <= now:
+        if must_be_future and date_obj >= now:
           print("Date must be in the future.")
           break
         
