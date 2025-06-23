@@ -3,6 +3,7 @@ import os # Input Clearing
 from datetime import datetime, timezone # Dates and UTC compliance for MongoDB
 import inputs # Abstract Inputs File
 from pymongo import MongoClient # Database
+import msvcrt # For getting any input to proceed
 
 # MongoDB
 client = MongoClient("localhost", 27017)
@@ -55,7 +56,7 @@ def get_inputs_add_task():
     'creation_timestamp': datetime.now(timezone.utc),
   }
 
-def read_task_option():
+def read_task_option(): # Include Filtering
   print('TASKS LIST')
   print('===============================================')
   task_list = tasks_collection.find({}, {'_id': 0}) # evolves into TaskManager
@@ -69,13 +70,50 @@ def read_task_option():
     print('Date of Creation (MM-DD-YYYY):', task['creation_timestamp'].date().strftime('%m-%d-%Y'))
     print('===============================================')
 
+  if os.name == 'nt':  # For Windows    
+    print("Press any key to continue...")
+    msvcrt.getch()
+    os.system('cls') # Clear current console input per operation
+  else:
+    input("Press Enter to continue...")
+    os.system('cls') # Clear current console input per operation
+
+
+def update_select_prompt():
+  print("""
+        Select Property to Update/Change
+        [1] Title
+        [2] Description
+        [3] Due Date
+        [4] Priority Level
+        [5] Status
+        """)
+
 def update_task_option():
   # select ID
     # check if id is correct - return if error or proceed if correct
     # retrieve task details from db
   # update selected attribute
   # return success
-  pass
+  print('Update TASK')
+  update_select_prompt()
+  
+  filter_id = {'task_id': 2}
+  
+  chosen_update = 2 # should be input
+  
+  update_options = {
+    1: 'title', 
+    2: 'description', 
+    3: 'due_date', 
+    4: 'priority_level', 
+    5 : 'status'
+  }
+  
+  update_property = {'$set': {f'{update_options[chosen_update]}' : 2}}
+  
+  tasks_collection.update_one(filter_id, update_property)
+  print('sucess')
 
 def complete_task_option():
   # select ID
@@ -83,7 +121,11 @@ def complete_task_option():
     # retrieve task details from db
   # update selected attribute
   # return success
-  pass
+  print('Complete TASK')
+  filter_id = {'task_id': 2} 
+  to_be_completed = {'$set': {'status' : 1}}
+  tasks_collection.update_one(filter_id, to_be_completed)
+  print('sucess')
 
 def delete_task_option():
   # select ID
@@ -91,7 +133,10 @@ def delete_task_option():
     # retrieve task details from db
   # update selected attribute
   # return success
-  pass
+  print('Delete TASK')
+  filter_id = {'task_id': 1}
+  tasks_collection.delete_one(filter_id)
+  print('sucess')
 
 def mainmenu_prompt():
     print("""
