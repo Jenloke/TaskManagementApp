@@ -1,9 +1,10 @@
 # Libraries
-import os # Input Clearing
 from datetime import datetime, timezone # Dates and UTC compliance for MongoDB
-import inputs # Abstract Inputs File
 from pymongo import MongoClient # Database
-import msvcrt # For getting any input to proceed
+
+# Made Libraries
+import inputs # Abstract Inputs File
+from continue_key import any_key_continue, clear_console
 
 # MongoDB
 client = MongoClient("localhost", 27017)
@@ -30,7 +31,7 @@ def add_task_option():
   print(task)
   # task_list.append(Task(**task))
   tasks_collection.insert_one(task)
-  os.system('cls') # Clear current console input per operation
+  clear_console()
   print("Note: Task successfully Added")
 
 def get_new_task_id():
@@ -41,10 +42,10 @@ def get_new_task_id():
 
 def get_inputs_add_task():
   print("CREATING a new TASK:")
-  title = inputs.get_non_empty_input("Input the task's title:")
-  description = inputs.get_non_empty_input("Input the task's description:")
-  due_date = inputs.get_date_input("Enter task's deadline (MM-DD-YYYY):", must_be_future=True)
-  priority_level = inputs.get_int_input_in_range("Set the priority level:", 1, 3)
+  title = inputs.get_non_empty_input("Input the task's title: ")
+  description = inputs.get_non_empty_input("Input the task's description: ")
+  due_date = inputs.get_date_input("Enter task's deadline (MM-DD-YYYY): ", must_be_future=True)
+  priority_level = inputs.get_int_input_in_range("Set the priority level: ", 1, 3)
   
   return {
     'task_id': get_new_task_id(),
@@ -69,15 +70,8 @@ def read_task_option(): # Include Filtering
     print('Status:', task['status'])
     print('Date of Creation (MM-DD-YYYY):', task['creation_timestamp'].date().strftime('%m-%d-%Y'))
     print('===============================================')
-
-  if os.name == 'nt':  # For Windows    
-    print("Press any key to continue...")
-    msvcrt.getch()
-    os.system('cls') # Clear current console input per operation
-  else:
-    input("Press Enter to continue...")
-    os.system('cls') # Clear current console input per operation
-
+    
+  any_key_continue()
 
 def update_select_prompt():
   print("""
@@ -88,6 +82,9 @@ def update_select_prompt():
         [4] Priority Level
         [5] Status
         """)
+  chosen_update = inputs.get_int_input_in_range("Choose new input: ", 1, 5) # should be input
+  
+  return int(chosen_update)
 
 def update_task_option():
   # select ID
@@ -96,24 +93,41 @@ def update_task_option():
   # update selected attribute
   # return success
   print('Update TASK')
-  update_select_prompt()
+
+  # Find ID of the task to be updated
+  input_id = inputs.find_id_input(tasks_collection)
   
-  filter_id = {'task_id': 2}
-  
-  chosen_update = 2 # should be input
-  
+  chosen_update = update_select_prompt()
   update_options = {
     1: 'title', 
     2: 'description', 
     3: 'due_date', 
     4: 'priority_level', 
-    5 : 'status'
+    5: 'status'
   }
   
-  update_property = {'$set': {f'{update_options[chosen_update]}' : 2}}
+  match chosen_update:
+    case 1:
+      updated_field = inputs.get_non_empty_input("Input the updated task's title: ")
+    case 2:
+      updated_field = inputs.get_non_empty_input("Input the updated task's description: ")
+    case 3:
+      updated_field = inputs.get_date_input("Enter the updated task's deadline (MM-DD-YYYY): ", must_be_future=True)
+    case 4:
+      updated_field = inputs.get_int_input_in_range("Update the priority level: ", 1, 3)
+    case 5:
+      updated_field = inputs.get_int_input_in_range("Update the priority level: ", 1, 3)
+
+  filter_id = {'task_id': input_id} # for final query
+  update_property = {'$set': { update_options[chosen_update] : updated_field }}
+  tasks_collection.update_one(filter_id, update_property)  
   
-  tasks_collection.update_one(filter_id, update_property)
-  print('sucess')
+  clear_console()
+  
+  # Success Message
+  print('Note: Update property Successful')
+  
+  any_key_continue()
 
 def complete_task_option():
   # select ID
@@ -155,7 +169,7 @@ while True:
   # Should be in OOP utilizing TaskManger Class
 
   main_input = input("Select an option: ")
-  os.system('cls') # Clear current console input per operation
+  clear_console()
 
   match main_input:
     case '1':
