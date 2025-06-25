@@ -75,24 +75,19 @@ def read_task_option(): # Include Filtering
 
 def update_select_prompt():
   print("""
-        Select Property to Update/Change
-        [1] Title
-        [2] Description
-        [3] Due Date
-        [4] Priority Level
-        [5] Status
-        """)
+    Select Property to Update/Change
+    [1] Title
+    [2] Description
+    [3] Due Date
+    [4] Priority Level
+    [5] Status
+  """)
   chosen_update = inputs.get_int_input_in_range("Choose new input: ", 1, 5) # should be input
   
   return int(chosen_update)
 
 def update_task_option():
-  # select ID
-    # check if id is correct - return if error or proceed if correct
-    # retrieve task details from db
-  # update selected attribute
-  # return success
-  print('Update TASK')
+  print('Update a TASK')
 
   # Find ID of the task to be updated
   input_id = inputs.find_id_input(tasks_collection)
@@ -123,45 +118,50 @@ def update_task_option():
   tasks_collection.update_one(filter_id, update_property)  
   
   clear_console()
-  
+  # Preview Changes
   # Success Message
   print('Note: Update property Successful')
-  
   any_key_continue()
 
 def complete_task_option():
-  # select ID
-    # check if id is correct - return if error or proceed if correct
-    # retrieve task details from db
-  # update selected attribute
-  # return success
-  print('Complete TASK')
-  filter_id = {'task_id': 2} 
+  print('Complete a TASK')
+  # Find ID of the task to be Completed
+  input_id = inputs.find_id_input(tasks_collection)
+  
+  filter_id = {'task_id': input_id} 
   to_be_completed = {'$set': {'status' : 1}}
   tasks_collection.update_one(filter_id, to_be_completed)
-  print('sucess')
+  
+  clear_console()
+  # Preview Changes
+  # Success Message
+  print('Note: Update property Successful')
+  any_key_continue()
 
 def delete_task_option():
-  # select ID
-    # check if id is correct - return if error or proceed if correct
-    # retrieve task details from db
-  # update selected attribute
-  # return success
   print('Delete TASK')
+  # Find ID of the task to be Deleted
+  input_id = inputs.find_id_input(tasks_collection)
+  
   filter_id = {'task_id': 1}
   tasks_collection.delete_one(filter_id)
-  print('sucess')
+  
+  clear_console()
+  # Preview Changes
+  # Success Message
+  print('Note: Task deletion Successful')
+  any_key_continue()
 
 def mainmenu_prompt():
-    print("""
-        Task Management Application
-        [1] Add task
-        [2] Read All tasks
-        [3] Update a task's details
-        [4] Mark a task as complete
-        [5] Delete a task
-        [6] Exit
-        """)
+  print("""
+    Task Management Application
+    [1] Add task
+    [2] Read All tasks
+    [3] Update a task's details
+    [4] Mark a task as complete
+    [5] Delete a task
+    [6] Exit
+  """)
 
 # Main Program Loop
 while True:
@@ -185,7 +185,3 @@ while True:
     case '6':
       print('Thank you for using Task Management Application')
       break
-
-# logic after operation call 
-# add_task_option()
-# read_task_option()
